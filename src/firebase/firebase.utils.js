@@ -3,13 +3,14 @@ import 'firebase/firestore';
 import 'firebase/auth';
 
 const config = {
-  apiKey: 'AIzaSyCdHT-AYHXjF7wOrfAchX4PIm3cSj5tn14',
-  authDomain: 'crwn-db.firebaseapp.com',
-  databaseURL: 'https://crwn-db.firebaseio.com',
-  projectId: 'crwn-db',
-  storageBucket: 'crwn-db.appspot.com',
-  messagingSenderId: '850995411664',
-  appId: '1:850995411664:web:7ddc01d597846f65'
+    apiKey: 'AIzaSyB4dZti6wc0bFs7jm_4wd-eOm6-UVK_3ag',
+    appId: '1:766731252958:web:5258ebbd4faf4dba3e7e4f',
+    authDomain: 'sagas-fedac.firebaseapp.com',
+    databaseURL: 'https://sagas-fedac.firebaseio.com',
+    measurementId: 'G-GMSD32CPYR',
+    messagingSenderId: '766731252958',
+    projectId: 'sagas-fedac',
+    storageBucket: 'sagas-fedac.appspot.com'
 };
 
 firebase.initializeApp(config);
@@ -26,13 +27,13 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
     const createdAt = new Date();
     try {
       await userRef.set({
+        createdAt,
         displayName,
         email,
-        createdAt,
         ...additionalData
       });
     } catch (error) {
-      console.log('error creating user', error.message);
+      //console.log('error creating user', error.message);
     }
   }
 
@@ -43,6 +44,7 @@ export const addCollectionAndDocuments = async (
   collectionKey,
   objectsToAdd
 ) => {
+
   const collectionRef = firestore.collection(collectionKey);
 
   const batch = firestore.batch();
@@ -59,10 +61,10 @@ export const convertCollectionsSnapshotToMap = collections => {
     const { title, items } = doc.data();
 
     return {
-      routeName: encodeURI(title.toLowerCase()),
-      id: doc.id,
-      title,
-      items
+        id: doc.id,
+        items,
+        routeName: encodeURI(title.toLowerCase()),
+        title
     };
   });
 
@@ -72,11 +74,20 @@ export const convertCollectionsSnapshotToMap = collections => {
   }, {});
 };
 
+export const getCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+        const unsubscribe = auth.onAuthStateChanged(userAuth => {
+            unsubscribe();
+            resolve(userAuth);
+        }, reject)
+    });
+}
+
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
 
 export default firebase;
